@@ -1,0 +1,44 @@
+{
+  "name": "make-concurrent",
+  "version": "0.0.1",
+  "main": "./index.js",
+  "description": "Easy exclusive or shared access to resource",
+  "author": "Fomichev Kirill <fanatid@ya.ru>",
+  "repository": {
+    "url": "git://github.com/fanatid/make-concurrent",
+    "type": "git"
+  },
+  "bugs": {
+    "url": "https://github.com/fanatid/make-concurrent/issues"
+  },
+  "license": "MIT",
+  "keywords": [
+    "concurrent",
+    "queue",
+    "promise"
+  ],
+  "files": [
+    "index.js",
+    "LICENSE",
+    "README.md"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "bluebird": "^2.9.25",
+    "chai": "^2.3.0",
+    "coveralls": "^2.11.2",
+    "es6-promise": "^2.1.1",
+    "istanbul": "^0.3.14",
+    "lie": "^2.8.1",
+    "mocha": "^2.2.4",
+    "q": "^1.4.0",
+    "standard": "^3.8.0"
+  },
+  "scripts": {
+    "coveralls": "npm run coverage && coveralls <coverage/lcov.info",
+    "coverage": "istanbul cover _mocha -- tests.js",
+    "lint": "standard",
+    "test": "npm run test:node",
+    "test:node": "istanbul test mocha -- --reporter spec tests.js"
+  }
+}
