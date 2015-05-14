@@ -5,7 +5,7 @@
 [![Dependency status](https://img.shields.io/david/fanatid/make-concurrent.svg?style=flat-square)](https://david-dm.org/fanatid/make-concurrent#info=dependencies)
 [![Dev Dependency status](https://img.shields.io/david/fanatid/make-concurrent.svg?style=flat-square)](https://david-dm.org/fanatid/make-concurrent#info=devDependencies)
 
-[![NPM](https://nodei.co/npm/make-concurrent.png)](https://www.npmjs.com/package/make-concurrent)
+[![NPM](https://nodei.co/npm/make-concurrent.png?downloads=true)](https://www.npmjs.com/package/make-concurrent)
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 If you have resource which requires exclusive or shared access try [make-concurrent](https://github.com/fanatid/make-concurrent) ;)
