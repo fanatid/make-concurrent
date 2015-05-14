@@ -1,6 +1,6 @@
 {
   "name": "make-concurrent",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "./index.js",
   "description": "Easy exclusive or shared access to resource",
   "author": "Fomichev Kirill <fanatid@ya.ru>",

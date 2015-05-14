@@ -11,8 +11,7 @@ module.exports = function generator (Promise) {
     var launched = 0
 
     function queuePulse () {
-      if ((concurrency === 0 || launched < concurrency) &&
-          (queue.length > 0 && queue.length > launched)) {
+      if ((concurrency === 0 || launched < concurrency) && queue.length > launched) {
         queue[launched]()
         launched += 1
       }
