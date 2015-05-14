@@ -53,7 +53,7 @@ http.createServer(makeConcurrent(function (req, res) {
 
   allowOverdraft(newBalance)
     .then(function (allowed) {
-      res.writeHead(200, {"Content-Type": "text/html"})
+      res.writeHead(200, {'Content-Type': 'text/plain'})
 
       if (allowed === true) {
         user.balance = newBalance
@@ -66,7 +66,7 @@ http.createServer(makeConcurrent(function (req, res) {
       res.end()
 
     }, function (err) {
-      res.writeHead(200, {"Content-Type": "text/html"});
+      res.writeHead(500, {'Content-Type': 'text/plain'});
       res.write('Error: ' + err)
       res.end()
     })

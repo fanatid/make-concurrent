@@ -1,4 +1,4 @@
-/* global describe, it */
+/* global describe, xdescribe, it */
 var expect = require('chai').expect
 var bluebird = require('bluebird')
 
