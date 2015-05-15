@@ -1,4 +1,4 @@
-module.exports = function generator (Promise) {
+function getConcurrent (Promise) {
   return function makeConcurrent (fn, opts) {
     var concurrency = 1
     if (opts &&
@@ -45,4 +45,14 @@ module.exports = function generator (Promise) {
       })
     }
   }
+}
+
+var concurrent = {}
+
+module.exports = function generator (Promise) {
+  if (concurrent[Promise] === undefined) {
+    concurrent[Promise] = getConcurrent(Promise)
+  }
+
+  return concurrent[Promise]
 }

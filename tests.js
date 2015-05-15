@@ -4,12 +4,18 @@ var bluebird = require('bluebird')
 
 function runTests (Promise) {
   var makeConcurrent = require('./index')(Promise)
+  makeConcurrent.cachedValue = 'cached!'
 
   function pdelay (delay) {
     return new Promise(function (resolve) {
       setTimeout(resolve, delay)
     })
   }
+
+  it('is cached?', function () {
+    var otherReadyMixin = require('./index')(Promise)
+    expect(otherReadyMixin.cachedValue).to.equal('cached!')
+  })
 
   it('concurrency is 0', function (done) {
     var total = 0

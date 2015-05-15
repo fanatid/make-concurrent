@@ -35,8 +35,8 @@
     "standard": "^3.8.0"
   },
   "scripts": {
-    "coveralls": "npm run coverage && coveralls <coverage/lcov.info",
     "coverage": "istanbul cover _mocha -- tests.js",
+    "coveralls": "npm run coverage && coveralls <coverage/lcov.info",
     "lint": "standard",
     "test": "npm run test:node",
     "test:node": "istanbul test mocha -- --reporter spec tests.js"
