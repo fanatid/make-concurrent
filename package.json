@@ -1,6 +1,6 @@
 {
   "name": "make-concurrent",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "./index.js",
   "description": "Easy exclusive or shared access to resource",
   "author": "Fomichev Kirill <fanatid@ya.ru>",
@@ -25,20 +25,30 @@
   "dependencies": {},
   "devDependencies": {
     "bluebird": "^2.9.25",
+    "browserify": "^9.0.3",
     "chai": "^2.3.0",
     "coveralls": "^2.11.2",
     "es6-promise": "^2.1.1",
     "istanbul": "^0.3.14",
+    "karma": "^0.12.31",
+    "karma-chrome-launcher": "^0.1.12",
+    "karma-detect-browsers": "^2.0.0",
+    "karma-firefox-launcher": "^0.1.6",
+    "karma-mocha": "^0.1.10",
     "lie": "^2.8.1",
     "mocha": "^2.2.4",
     "q": "^1.4.0",
     "standard": "^3.8.0"
   },
   "scripts": {
+    "compile:test": "browserify -o tests.browser.js tests.js",
     "coverage": "istanbul cover _mocha -- tests.js",
     "coveralls": "npm run coverage && coveralls <coverage/lcov.info",
+    "clean": "rm -f tests.browser.js",
+    "karma": "./node_modules/karma/bin/karma start karma.conf.js",
     "lint": "standard",
-    "test": "npm run test:node",
-    "test:node": "istanbul test mocha -- --reporter spec tests.js"
+    "test": "npm run test:node && npm run test:browser",
+    "test:node": "istanbul test mocha -- --reporter spec tests.js",
+    "test:browser": "npm run compile:test && npm run karma"
   }
 }
