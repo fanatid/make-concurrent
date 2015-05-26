@@ -19,7 +19,11 @@ function getConcurrent (Promise) {
 
     return function () {
       var ctx = this
-      var args = Array.prototype.slice.call(arguments)
+
+      var args = new Array(arguments.length)
+      for (var i = 0; i < args.length; ++i) {
+        args[i] = arguments[i]
+      }
 
       function onFinished () {
         launched -= 1
