@@ -1,12 +1,10 @@
 import getCustomPromise from 'custom-promise-for-package'
 
 export default getCustomPromise((Promise) => {
-  return function makeConcurrent (fn, opts) {
-    var concurrency = 1
-    if (opts &&
-        Object.prototype.toString.call(opts.concurrency) === '[object Number]' &&
-        opts.concurrency >= 0) {
-      concurrency = opts.concurrency
+  return function makeConcurrent (fn, opts = {concurrency: 1}) {
+    var concurrency = parseInt(Object(opts).concurrency, 10)
+    if (isNaN(concurrency) || concurrency < 0) {
+      concurrency = 1
     }
 
     var queue = []

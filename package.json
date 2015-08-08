@@ -1,6 +1,6 @@
 {
   "name": "make-concurrent",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Easy exclusive or shared access to resource",
   "keywords": [
     "concurrent",
