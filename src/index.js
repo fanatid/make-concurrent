@@ -1,4 +1,6 @@
-function getConcurrent (Promise) {
+import getCustomPromise from 'custom-promise-for-package'
+
+export default getCustomPromise((Promise) => {
   return function makeConcurrent (fn, opts) {
     var concurrency = 1
     if (opts &&
@@ -18,10 +20,8 @@ function getConcurrent (Promise) {
     }
 
     return function () {
-      var ctx = this
-
       var args = new Array(arguments.length)
-      for (var i = 0; i < args.length; ++i) {
+      for (let i = 0; i < args.length; ++i) {
         args[i] = arguments[i]
       }
 
@@ -32,31 +32,21 @@ function getConcurrent (Promise) {
       }
 
       var currentResolve
-      return new Promise(function (resolve) {
+      return new Promise((resolve) => {
         currentResolve = resolve
         queue.push(currentResolve)
         queuePulse()
       })
-      .then(function () {
-        return fn.apply(ctx, args)
+      .then(() => {
+        return fn.apply(this, args)
       })
-      .then(function (value) {
+      .then((value) => {
         onFinished()
         return value
-      }, function (reason) {
+      }, (reason) => {
         onFinished()
         throw reason
       })
     }
   }
-}
-
-var concurrent = {}
-
-module.exports = function generator (Promise) {
-  if (concurrent[Promise] === undefined) {
-    concurrent[Promise] = getConcurrent(Promise)
-  }
-
-  return concurrent[Promise]
-}
+})
