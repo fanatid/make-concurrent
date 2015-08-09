@@ -12,12 +12,12 @@ function runTests (Promise) {
     })
   }
 
-  it('concurrency is 0', (done) => {
+  it('concurrency is Infinity', (done) => {
     var total = 0
     var fn = createConcurrentFn((x) => {
       total += x
       return pdelay(100)
-    }, {concurrency: 0})
+    }, {concurrency: Infinity})
 
     expect(total).to.equal(0)
     setTimeout(() => { expect(total).to.equal(14) }, 50)
