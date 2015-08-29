@@ -1,15 +1,11 @@
-import getCustomPromise from 'custom-promise-for-package'
+import { Semaphore } from 'sync-primitives'
 
-export default getCustomPromise((Promise) => {
-  var Semaphore = require('sync-primitives')(Promise).Semaphore
-
-  return function makeConcurrent (fn, opts = {concurrency: 1}) {
-    var sem = new Semaphore(Object(opts).concurrency)
-    return function () {
-      return sem.withLock(() => {
-        return fn.apply(this, arguments)
-      })
-      .then((result) => { return result[1] })
-    }
+export default function (fn, opts = {concurrency: 1}) {
+  let sem = new Semaphore(Object(opts).concurrency)
+  return function () {
+    return sem.withLock(() => {
+      return fn.apply(this, arguments)
+    })
+    .then((result) => { return result[1] })
   }
-})
+}

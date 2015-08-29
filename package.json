@@ -1,6 +1,6 @@
 {
   "name": "make-concurrent",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "Easy exclusive or shared access to resource",
   "keywords": [
     "concurrent",
@@ -39,11 +39,11 @@
   },
   "dependencies": {
     "babel-runtime": "^5.8.20",
-    "custom-promise-for-package": "0.0.1",
-    "sync-primitives": "0.0.2"
+    "sync-primitives": "^1.0.0"
   },
   "devDependencies": {
     "babel": "^5.8.21",
+    "babel-core": "^5.8.23",
     "babel-eslint": "^4.0.5",
     "babelify": "^6.1.3",
     "bluebird": "^2.9.34",
@@ -60,7 +60,6 @@
     "karma-firefox-launcher": "^0.1.6",
     "karma-mocha": "^0.2.0",
     "lie": "^3.0.1",
-    "mocha": "^2.2.5",
-    "q": "^2.0.3"
+    "mocha": "^2.2.5"
   }
 }

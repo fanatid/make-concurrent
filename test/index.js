@@ -1,20 +1,15 @@
 import { expect } from 'chai'
-import bluebird from 'bluebird'
 
 import makeConcurrent from '../src'
 
 function runTests (Promise) {
-  var createConcurrentFn = makeConcurrent(Promise)
-
   function pdelay (delay) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, delay)
-    })
+    return new Promise((resolve) => { setTimeout(resolve, delay) })
   }
 
   it('concurrency is Infinity', (done) => {
-    var total = 0
-    var fn = createConcurrentFn((x) => {
+    let total = 0
+    let fn = makeConcurrent((x) => {
       total += x
       return pdelay(100)
     }, {concurrency: Infinity})
@@ -29,8 +24,8 @@ function runTests (Promise) {
   })
 
   it('concurrency is 1', (done) => {
-    var total = 0
-    var fn = createConcurrentFn((x) => {
+    let total = 0
+    let fn = makeConcurrent((x) => {
       total += x
       return pdelay(100)
     })
@@ -47,8 +42,8 @@ function runTests (Promise) {
   })
 
   it('concurrency is 2', (done) => {
-    var total = 0
-    var fn = createConcurrentFn((x) => {
+    let total = 0
+    let fn = makeConcurrent((x) => {
       total += x
       return pdelay(100)
     }, {concurrency: 2})
@@ -64,44 +59,41 @@ function runTests (Promise) {
   })
 
   it('returned value', (done) => {
-    var fn = createConcurrentFn((x) => {
+    let fn = makeConcurrent((x) => {
       return x * 2
     })
 
-    bluebird.try(() => {
-      return fn(2)
-    })
-    .asCallback((err, val) => {
-      expect(err).to.be.null
-      expect(val).to.equal(4)
-      done()
-    })
+    Promise.resolve()
+      .then(() => { return fn(2) })
+      .then((val) => {
+        expect(val).to.equal(4)
+      })
+      .then(done, done)
   })
 
   it('throw error', (done) => {
-    var fn = createConcurrentFn((x) => {
+    let fn = makeConcurrent((x) => {
       throw new Error(x)
     })
 
-    bluebird.try(() => {
-      return fn('msg!')
-    })
-    .asCallback((err, val) => {
-      expect(err).to.be.instanceof(Error)
-      expect(err.message).to.equal('msg!')
-      expect(val).to.be.undefined
-      done()
-    })
+    Promise.resolve()
+      .then(() => { return fn('true') })
+      .then(() => { throw new Error('false') })
+      .catch((err) => {
+        expect(err).to.be.instanceof(Error)
+        expect(err.message).to.equal('true')
+      })
+      .then(done, done)
   })
 }
 
-var promises = {
+let promises = {
   'Promise': Promise,
   'bluebird': require('bluebird'),
   // 'Q': require('q'),
   'lie': require('lie')
 }
 
-Object.keys(promises).forEach((key) => {
+for (let key of Object.keys(promises)) {
   describe(key, () => { runTests(promises[key]) })
-})
+}
