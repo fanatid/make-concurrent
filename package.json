@@ -1,6 +1,6 @@
 {
   "name": "make-concurrent",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Easy exclusive or shared access to resource",
   "keywords": [
     "concurrent",
@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "babel-runtime": "^5.8.20",
-    "sync-primitives": "^1.0.0"
+    "sync-primitives": "^1.0.1"
   },
   "devDependencies": {
     "babel": "^5.8.21",
