@@ -58,32 +58,27 @@ function runTests (Promise) {
     fn(8)
   })
 
-  it('returned value', (done) => {
+  it('returned value', async () => {
     let fn = makeConcurrent((x) => {
       return x * 2
     })
 
-    Promise.resolve()
-      .then(() => { return fn(2) })
-      .then((val) => {
-        expect(val).to.equal(4)
-      })
-      .then(done, done)
+    let val = await fn(2)
+    expect(val).to.equal(4)
   })
 
-  it('throw error', (done) => {
+  it('throw error', async () => {
     let fn = makeConcurrent((x) => {
       throw new Error(x)
     })
 
-    Promise.resolve()
-      .then(() => { return fn('true') })
-      .then(() => { throw new Error('false') })
-      .catch((err) => {
-        expect(err).to.be.instanceof(Error)
-        expect(err.message).to.equal('true')
-      })
-      .then(done, done)
+    try {
+      await fn('true')
+      throw new Error('false')
+    } catch (err) {
+      expect(err).to.be.instanceof(Error)
+      expect(err.message).to.equal('true')
+    }
   })
 }
 
