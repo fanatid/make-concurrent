@@ -7,6 +7,26 @@ function runTests (Promise) {
     return new Promise((resolve) => { setTimeout(resolve, delay) })
   }
 
+  it('as decorator', async () => {
+    let obj = {
+      @makeConcurrent
+      fn (x) { return x * 2 }
+    }
+
+    let val = await obj.fn(2)
+    expect(val).to.equal(4)
+  })
+
+  it('as decorator with concurrency', async () => {
+    let obj = {
+      @makeConcurrent({concurrency: Infinity})
+      fn (x) { return x * 2 }
+    }
+
+    let val = await obj.fn(2)
+    expect(val).to.equal(4)
+  })
+
   it('concurrency is Infinity', (done) => {
     let total = 0
     let fn = makeConcurrent((x) => {
@@ -79,6 +99,11 @@ function runTests (Promise) {
       expect(err).to.be.instanceof(Error)
       expect(err.message).to.equal('true')
     }
+  })
+
+  it('throw Error', () => {
+    let fn = () => { makeConcurrent(1) }
+    expect(fn).to.throw(/Bad arguments/)
   })
 }
 
