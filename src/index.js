@@ -28,6 +28,7 @@ export default function makeConcurrent (target, name, descriptor, opts) {
       name === undefined &&
       descriptor === undefined &&
       opts === undefined) {
+    opts = target
     return function (target, name, descriptor) {
       makeConcurrent(target, name, descriptor, opts)
     }

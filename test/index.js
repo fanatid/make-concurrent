@@ -19,7 +19,7 @@ function runTests (Promise) {
 
   it('as decorator with concurrency', async () => {
     let obj = {
-      @makeConcurrent({concurrency: Infinity})
+      @makeConcurrent({concurrency: 2})
       fn (x) { return x * 2 }
     }
 
