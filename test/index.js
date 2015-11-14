@@ -1,6 +1,10 @@
-import { expect } from 'chai'
+import chai from 'chai'
+import chaiAsPromised from 'chai-as-promised'
 
 import makeConcurrent from '../src'
+
+chai.use(chaiAsPromised)
+let expect = chai.expect
 
 function runTests (Promise) {
   function pdelay (delay) {
@@ -27,7 +31,7 @@ function runTests (Promise) {
     expect(val).to.equal(4)
   })
 
-  it('concurrency is Infinity', (done) => {
+  it('concurrency is Infinity', async () => {
     let total = 0
     let fn = makeConcurrent((x) => {
       total += x
@@ -35,15 +39,16 @@ function runTests (Promise) {
     }, {concurrency: Infinity})
 
     expect(total).to.equal(0)
-    setTimeout(() => { expect(total).to.equal(14) }, 50)
-    setTimeout(done, 150)
 
     fn(2)
     fn(4)
     fn(8)
+
+    await pdelay(50)
+    expect(total).to.equal(14)
   })
 
-  it('concurrency is 1', (done) => {
+  it('concurrency is 1', async () => {
     let total = 0
     let fn = makeConcurrent((x) => {
       total += x
@@ -51,17 +56,20 @@ function runTests (Promise) {
     })
 
     expect(total).to.equal(0)
-    setTimeout(() => { expect(total).to.equal(2) }, 50)
-    setTimeout(() => { expect(total).to.equal(6) }, 150)
-    setTimeout(() => { expect(total).to.equal(14) }, 250)
-    setTimeout(done, 350)
 
     fn(2)
     fn(4)
     fn(8)
+
+    await pdelay(25)
+    expect(total).to.equal(2)
+    await pdelay(100)
+    expect(total).to.equal(6)
+    await pdelay(100)
+    expect(total).to.equal(14)
   })
 
-  it('concurrency is 2', (done) => {
+  it('concurrency is 2', async () => {
     let total = 0
     let fn = makeConcurrent((x) => {
       total += x
@@ -69,13 +77,15 @@ function runTests (Promise) {
     }, {concurrency: 2})
 
     expect(total).to.equal(0)
-    setTimeout(() => { expect(total).to.equal(6) }, 50)
-    setTimeout(() => { expect(total).to.equal(14) }, 150)
-    setTimeout(done, 250)
 
     fn(2)
     fn(4)
     fn(8)
+
+    await pdelay(25)
+    expect(total).to.equal(6)
+    await pdelay(100)
+    expect(total).to.equal(14)
   })
 
   it('returned value', async () => {
@@ -87,18 +97,12 @@ function runTests (Promise) {
     expect(val).to.equal(4)
   })
 
-  it('throw error', async () => {
+  it('throw error', () => {
     let fn = makeConcurrent((x) => {
       throw new Error(x)
     })
 
-    try {
-      await fn('true')
-      throw new Error('false')
-    } catch (err) {
-      expect(err).to.be.instanceof(Error)
-      expect(err.message).to.equal('true')
-    }
+    expect(fn('true')).to.be.rejectedWith(Error, 'true')
   })
 
   it('throw Error', () => {

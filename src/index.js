@@ -1,16 +1,32 @@
-import { Semaphore } from 'sync-primitives'
-
 function type (obj) {
   return Object.prototype.toString.call(obj).slice(8, -1)
 }
 
 function createConcurrentFunction (fn, opts = {concurrency: 1}) {
-  let sem = new Semaphore(Object(opts).concurrency)
-  return function () {
-    return sem.withLock(() => {
-      return fn.apply(this, arguments)
-    })
-    .then((result) => { return result[1] })
+  let concurrency = Object(opts).concurrency
+  if (concurrency !== Infinity && (!isFinite(concurrency) || concurrency <= 0)) {
+    concurrency = 1
+  }
+
+  let count = 0
+  let queue = []
+
+  return async function () {
+    if (count >= concurrency) {
+      await new Promise((resolve) => {
+        queue.push({resolve: resolve})
+      })
+    }
+
+    try {
+      count += 1
+      return await fn.apply(this, arguments)
+    } finally {
+      count -= 1
+      if (queue.length > 0) {
+        queue.shift().resolve()
+      }
+    }
   }
 }
 
