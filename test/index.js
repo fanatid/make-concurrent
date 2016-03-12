@@ -1,123 +1,92 @@
-import chai from 'chai'
-import chaiAsPromised from 'chai-as-promised'
-
+import 'babel-core/register'
+import test from 'ava'
 import makeConcurrent from '../src'
 
-chai.use(chaiAsPromised)
-let expect = chai.expect
+function noop () {}
+function delay (ms) { return new Promise((resolve) => setTimeout(resolve, ms)) }
 
-function runTests (Promise) {
-  function pdelay (delay) {
-    return new Promise((resolve) => { setTimeout(resolve, delay) })
-  }
+test('invalid concurrency: string', (t) => {
+  t.throws(() => {
+    makeConcurrent(noop, { concurrency: 'hello world' })
+  }, /^TypeError: invalid concurrency: hello world$/)
+})
 
-  it('as decorator', async () => {
-    let obj = {
-      @makeConcurrent
-      fn (x) { return x * 2 }
-    }
+test('invalid concurrency: NaN', (t) => {
+  t.throws(() => {
+    makeConcurrent(noop, { concurrency: NaN })
+  }, /^TypeError: invalid concurrency: NaN$/)
+})
 
-    let val = await obj.fn(2)
-    expect(val).to.equal(4)
+test('invalid concurrency: 0', (t) => {
+  t.throws(() => {
+    makeConcurrent(noop, { concurrency: 0 })
+  }, /^TypeError: invalid concurrency: 0$/)
+})
+
+test('concurrency is Infinity', async function (t) {
+  let total = 0
+  let fn = makeConcurrent((x) => {
+    total += x
+    return delay(100)
+  }, {concurrency: Infinity})
+
+  fn(2)
+  fn(4)
+  fn(8)
+
+  await delay(50)
+  t.same(total, 14)
+})
+
+test('concurrency is 1 (by default)', async function (t) {
+  let total = 0
+  let fn = makeConcurrent((x) => {
+    total += x
+    return delay(100)
   })
 
-  it('as decorator with concurrency', async () => {
-    let obj = {
-      @makeConcurrent({concurrency: 2})
-      fn (x) { return x * 2 }
-    }
+  fn(2)
+  fn(4)
+  fn(8)
 
-    let val = await obj.fn(2)
-    expect(val).to.equal(4)
+  await delay(10)
+  t.same(total, 2)
+  await delay(100)
+  t.same(total, 6)
+  await delay(100)
+  t.same(total, 14)
+})
+
+test('concurrency is 2', async function (t) {
+  let total = 0
+  let fn = makeConcurrent((x) => {
+    total += x
+    return delay(100)
+  }, {concurrency: 2})
+
+  fn(2)
+  fn(4)
+  fn(8)
+
+  await delay(10)
+  t.same(total, 6)
+  await delay(100)
+  t.same(total, 14)
+})
+
+test('check returned value', async function (t) {
+  let fn = makeConcurrent((x) => {
+    return x * 2
   })
 
-  it('concurrency is Infinity', async () => {
-    let total = 0
-    let fn = makeConcurrent((x) => {
-      total += x
-      return pdelay(100)
-    }, {concurrency: Infinity})
+  let val = await fn(2)
+  t.same(val, 4)
+})
 
-    expect(total).to.equal(0)
-
-    fn(2)
-    fn(4)
-    fn(8)
-
-    await pdelay(50)
-    expect(total).to.equal(14)
+test('check error throwing', (t) => {
+  let fn = makeConcurrent((x) => {
+    throw new Error(x)
   })
 
-  it('concurrency is 1', async () => {
-    let total = 0
-    let fn = makeConcurrent((x) => {
-      total += x
-      return pdelay(100)
-    })
-
-    expect(total).to.equal(0)
-
-    fn(2)
-    fn(4)
-    fn(8)
-
-    await pdelay(25)
-    expect(total).to.equal(2)
-    await pdelay(100)
-    expect(total).to.equal(6)
-    await pdelay(100)
-    expect(total).to.equal(14)
-  })
-
-  it('concurrency is 2', async () => {
-    let total = 0
-    let fn = makeConcurrent((x) => {
-      total += x
-      return pdelay(100)
-    }, {concurrency: 2})
-
-    expect(total).to.equal(0)
-
-    fn(2)
-    fn(4)
-    fn(8)
-
-    await pdelay(25)
-    expect(total).to.equal(6)
-    await pdelay(100)
-    expect(total).to.equal(14)
-  })
-
-  it('returned value', async () => {
-    let fn = makeConcurrent((x) => {
-      return x * 2
-    })
-
-    let val = await fn(2)
-    expect(val).to.equal(4)
-  })
-
-  it('throw error', () => {
-    let fn = makeConcurrent((x) => {
-      throw new Error(x)
-    })
-
-    expect(fn('true')).to.be.rejectedWith(Error, 'true')
-  })
-
-  it('throw Error', () => {
-    let fn = () => { makeConcurrent(1) }
-    expect(fn).to.throw(/Bad arguments/)
-  })
-}
-
-let promises = {
-  'Promise': Promise,
-  'bluebird': require('bluebird'),
-  // 'Q': require('q'),
-  'lie': require('lie')
-}
-
-for (let key of Object.keys(promises)) {
-  describe(key, () => { runTests(promises[key]) })
-}
+  t.throws(fn('hey there'), /^Error: hey there$/)
+})

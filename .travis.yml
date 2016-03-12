@@ -1,22 +1,19 @@
 sudo: false
+os: linux
 language: node_js
 node_js:
-  - 0.10
-  - 0.11
-  - 0.12
-  - 4
-  - 5
-before_install:
-  - sh -e /etc/init.d/xvfb start
+  - "0.10"
+  - "0.11"
+  - "0.12"
+  - "4"
+  - "5"
 env:
-  global:
-    - DISPLAY=:99.0
   matrix:
-  - TEST_SUITE=test
+  - TEST_SUITE=unit
 matrix:
   include:
     - node_js: 4
-      env: TEST_SUITE=coverage
+      env: TEST_SUITE=coveralls
     - node_js: 4
       env: TEST_SUITE=lint
 script: npm run $TEST_SUITE

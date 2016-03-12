@@ -1,4 +1,10 @@
 {
-  "optional": ["runtime"],
-  "stage": 0
+  "presets": [
+    "es2015"
+  ],
+  "plugins": [
+    "add-module-exports",
+    "transform-runtime",
+    "transform-strict-mode"
+  ]
 }

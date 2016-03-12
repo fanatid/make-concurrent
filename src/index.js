@@ -1,63 +1,36 @@
-function type (obj) {
-  return Object.prototype.toString.call(obj).slice(8, -1)
-}
-
-function createConcurrentFunction (fn, opts = {concurrency: 1}) {
+export default function makeConcurrent (fn, opts = {concurrency: 1}) {
   let concurrency = Object(opts).concurrency
-  if (concurrency !== Infinity && (!isFinite(concurrency) || concurrency <= 0)) {
-    concurrency = 1
+  if (typeof concurrency !== 'number' || isNaN(concurrency) || concurrency <= 0) {
+    throw new TypeError(`invalid concurrency: ${concurrency}`)
   }
 
   let count = 0
   let queue = []
 
-  return async function () {
+  function next () {
+    if (queue.length > 0) queue.shift().resolve()
+    else count -= 1
+  }
+
+  return function () {
+    let qPromise
     if (count >= concurrency) {
-      await new Promise((resolve) => {
-        queue.push({resolve: resolve})
+      qPromise = new Promise((resolve) => {
+        queue.push({ resolve })
       })
-    }
-
-    try {
+    } else {
+      qPromise = Promise.resolve()
       count += 1
-      return await fn.apply(this, arguments)
-    } finally {
-      count -= 1
-      if (queue.length > 0) {
-        queue.shift().resolve()
-      }
     }
-  }
-}
 
-export default function makeConcurrent (target, name, descriptor, opts) {
-  // call as function
-  if (type(target) === 'Function' &&
-      (type(name) === 'Object' || name === undefined) &&
-      descriptor === undefined &&
-      opts === undefined) {
-    return createConcurrentFunction(target, name)
+    return qPromise
+      .then(() => fn.apply(this, arguments))
+      .then((ret) => {
+        next()
+        return ret
+      }, (err) => {
+        next()
+        throw err
+      })
   }
-
-  // call as decorator function
-  if ((type(target) === 'Object' || target === undefined) &&
-      name === undefined &&
-      descriptor === undefined &&
-      opts === undefined) {
-    opts = target
-    return function (target, name, descriptor) {
-      makeConcurrent(target, name, descriptor, opts)
-    }
-  }
-
-  // as decorator
-  if ((type(target) === 'Function' || type(target) === 'Object') &&
-      type(name) === 'String' &&
-      type(descriptor) === 'Object' &&
-      (type(opts) === 'Object' || opts === undefined)) {
-    descriptor.value = makeConcurrent(descriptor.value, opts)
-    return
-  }
-
-  throw new Error('Bad arguments')
 }
