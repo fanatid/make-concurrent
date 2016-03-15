@@ -28,7 +28,7 @@
     "coveralls": "npm run coverage && nyc report --reporter=text-lcov |coveralls",
     "clean": "rm -f lib/*",
     "lint": "standard",
-    "test": "npm run lint",
+    "test": "npm run lint && npm run unit",
     "unit": "ava"
   },
   "dependencies": {

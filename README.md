@@ -19,7 +19,7 @@ npm install make-concurrent
 
 ```js
 var fs = require('fs')
-var makeConcurrent = require('make-concurrent')
+var makeConcurrent = require('make-concurrent').default // or import makeConcurrent from 'make-concurrent'
 
 var objdb = {}
 var save = makeConcurrent(() => {
