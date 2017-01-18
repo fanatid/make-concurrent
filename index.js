@@ -1,11 +1,11 @@
-export default function makeConcurrent (fn, opts = {concurrency: 1}) {
-  let concurrency = Object(opts).concurrency
+module.exports = function (fn, opts) {
+  const concurrency = Object.assign({ concurrency: 1 }, opts).concurrency
   if (typeof concurrency !== 'number' || isNaN(concurrency) || concurrency <= 0) {
-    throw new TypeError(`invalid concurrency: ${concurrency}`)
+    throw new TypeError(`Invalid concurrency value: ${concurrency}`)
   }
 
   let count = 0
-  let queue = []
+  const queue = []
 
   function next () {
     if (queue.length > 0) queue.shift().resolve()
@@ -13,17 +13,15 @@ export default function makeConcurrent (fn, opts = {concurrency: 1}) {
   }
 
   return function () {
-    let qPromise
+    let promise
     if (count >= concurrency) {
-      qPromise = new Promise((resolve) => {
-        queue.push({ resolve })
-      })
+      promise = new Promise((resolve) => queue.push({ resolve }))
     } else {
-      qPromise = Promise.resolve()
+      promise = Promise.resolve()
       count += 1
     }
 
-    return qPromise
+    return promise
       .then(() => fn.apply(this, arguments))
       .then((ret) => {
         next()

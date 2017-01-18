@@ -1,92 +1,102 @@
-import 'babel-core/register'
-import test from 'ava'
-import makeConcurrent from '../src'
+const test = require('tape')
+const makeConcurrent = require('../')
 
 function noop () {}
-function delay (ms) { return new Promise((resolve) => setTimeout(resolve, ms)) }
+function wait (ms) { return new Promise((resolve) => setTimeout(resolve, ms)) }
 
-test('invalid concurrency: string', (t) => {
+test('invalid concurrency: -1', (t) => {
   t.throws(() => {
-    makeConcurrent(noop, { concurrency: 'hello world' })
-  }, /^TypeError: invalid concurrency: hello world$/)
+    makeConcurrent(noop, { concurrency: -1 })
+  }, /^TypeError: Invalid concurrency value: -1$/)
+  t.end()
 })
 
-test('invalid concurrency: NaN', (t) => {
-  t.throws(() => {
-    makeConcurrent(noop, { concurrency: NaN })
-  }, /^TypeError: invalid concurrency: NaN$/)
-})
-
-test('invalid concurrency: 0', (t) => {
-  t.throws(() => {
-    makeConcurrent(noop, { concurrency: 0 })
-  }, /^TypeError: invalid concurrency: 0$/)
-})
-
-test('concurrency is Infinity', async function (t) {
+test('concurrency is Infinity', (t) => {
   let total = 0
-  let fn = makeConcurrent((x) => {
+  const fn = makeConcurrent((x) => {
     total += x
-    return delay(100)
-  }, {concurrency: Infinity})
+    return wait(100)
+  }, { concurrency: Infinity })
 
   fn(2)
   fn(4)
   fn(8)
 
-  await delay(50)
-  t.same(total, 14)
+  wait(50)
+    .then(() => {
+      t.equal(total, 14)
+      t.end()
+    })
 })
 
-test('concurrency is 1 (by default)', async function (t) {
+test('concurrency is 1 (by default)', (t) => {
   let total = 0
-  let fn = makeConcurrent((x) => {
+  const fn = makeConcurrent((x) => {
     total += x
-    return delay(100)
+    return wait(100)
   })
 
   fn(2)
   fn(4)
   fn(8)
 
-  await delay(10)
-  t.same(total, 2)
-  await delay(100)
-  t.same(total, 6)
-  await delay(100)
-  t.same(total, 14)
+  wait(10)
+    .then(() => {
+      t.equal(total, 2)
+      return wait(100)
+    })
+    .then(() => {
+      t.equal(total, 6)
+      return wait(100)
+    })
+    .then(() => {
+      t.equal(total, 14)
+      t.end()
+    })
 })
 
-test('concurrency is 2', async function (t) {
+test('concurrency is 2', (t) => {
   let total = 0
   let fn = makeConcurrent((x) => {
     total += x
-    return delay(100)
-  }, {concurrency: 2})
+    return wait(100)
+  }, { concurrency: 2 })
 
   fn(2)
   fn(4)
   fn(8)
 
-  await delay(10)
-  t.same(total, 6)
-  await delay(100)
-  t.same(total, 14)
+  wait(10)
+    .then(() => {
+      t.equal(total, 6)
+      return wait(100)
+    })
+    .then(() => {
+      t.equal(total, 14)
+      t.end()
+    })
 })
 
-test('check returned value', async function (t) {
-  let fn = makeConcurrent((x) => {
+test('check returned value', (t) => {
+  const fn = makeConcurrent((x) => {
     return x * 2
   })
 
-  let val = await fn(2)
-  t.same(val, 4)
+  fn(2)
+    .then((ret) => {
+      t.equal(ret, 4)
+      t.end()
+    })
 })
 
 test('check error throwing', (t) => {
-  let fn = makeConcurrent((x) => {
+  const fn = makeConcurrent((x) => {
     throw new Error(x)
   })
 
-  t.throws(fn('hey there'), /^Error: hey there$/)
+  fn('hey there')
+    .catch((err) => {
+      t.true(/^Error: hey there$/.exec(err) !== null)
+      t.end()
+    })
 })
