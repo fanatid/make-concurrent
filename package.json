@@ -27,9 +27,9 @@
     "unit": "tape test/*.js"
   },
   "devDependencies": {
-    "nyc": "^10.1.2",
-    "standard": "*",
-    "tape": "^4.6.3"
+    "nyc": "^11.3.0",
+    "standard": "10.0.3",
+    "tape": "^4.8.0"
   },
   "engines": {
     "node": ">=4.0.0"
