@@ -12,7 +12,7 @@ test('invalid concurrency: -1', (t) => {
   t.end()
 })
 
-test('concurrency is Infinity', (t) => {
+test('concurrency is Infinity', async (t) => {
   let total = 0
   const fn = makeConcurrent((x) => {
     total += x
@@ -23,14 +23,13 @@ test('concurrency is Infinity', (t) => {
   fn(4)
   fn(8)
 
-  wait(50)
-    .then(() => {
-      t.equal(total, 14)
-      t.end()
-    })
+  await wait(50)
+  t.equal(total, 14)
+
+  t.end()
 })
 
-test('concurrency is 1 (by default)', (t) => {
+test('concurrency is 1 (by default)', async (t) => {
   let total = 0
   const fn = makeConcurrent((x) => {
     total += x
@@ -41,22 +40,19 @@ test('concurrency is 1 (by default)', (t) => {
   fn(4)
   fn(8)
 
-  wait(10)
-    .then(() => {
-      t.equal(total, 2)
-      return wait(100)
-    })
-    .then(() => {
-      t.equal(total, 6)
-      return wait(100)
-    })
-    .then(() => {
-      t.equal(total, 14)
-      t.end()
-    })
+  await wait(10)
+  t.equal(total, 2)
+
+  await wait(100)
+  t.equal(total, 6)
+
+  await wait(100)
+  t.equal(total, 14)
+
+  t.end()
 })
 
-test('concurrency is 2', (t) => {
+test('concurrency is 2', async (t) => {
   let total = 0
   let fn = makeConcurrent((x) => {
     total += x
@@ -67,37 +63,37 @@ test('concurrency is 2', (t) => {
   fn(4)
   fn(8)
 
-  wait(10)
-    .then(() => {
-      t.equal(total, 6)
-      return wait(100)
-    })
-    .then(() => {
-      t.equal(total, 14)
-      t.end()
-    })
+  await wait(10)
+  t.equal(total, 6)
+
+  await wait(100)
+  t.equal(total, 14)
+
+  t.end()
 })
 
-test('check returned value', (t) => {
+test('check returned value', async (t) => {
   const fn = makeConcurrent((x) => {
     return x * 2
   })
 
-  fn(2)
-    .then((ret) => {
-      t.equal(ret, 4)
-      t.end()
-    })
+  const ret = await fn(2)
+  t.equal(ret, 4)
+  t.end()
 })
 
-test('check error throwing', (t) => {
+test('check error throwing', async (t) => {
+  t.plan(1)
+
   const fn = makeConcurrent((x) => {
     throw new Error(x)
   })
 
-  fn('hey there')
-    .catch((err) => {
-      t.true(/^Error: hey there$/.exec(err) !== null)
-      t.end()
-    })
+  try {
+    await fn('hey there')
+  } catch (err) {
+    t.true(/^Error: hey there$/.exec(err) !== null)
+  }
+
+  t.end()
 })

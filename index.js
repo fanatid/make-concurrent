@@ -8,28 +8,17 @@ module.exports = function (fn, opts) {
   let count = 0
   const queue = []
 
-  function next () {
-    if (queue.length > 0) queue.shift().resolve()
-    else count -= 1
-  }
-
-  return function () {
-    let promise
-    if (count >= concurrency) {
-      promise = new Promise((resolve) => queue.push({ resolve }))
-    } else {
-      promise = Promise.resolve()
+  return async function (...args) {
+    try {
       count += 1
-    }
-
-    return promise
-      .then(() => fn.apply(this, arguments))
-      .then((ret) => {
-        next()
-        return ret
-      }, (err) => {
-        next()
-        throw err
+      await new Promise((resolve) => {
+        if (count <= concurrency) return resolve()
+        queue.push({ resolve })
       })
+      return await fn(...args)
+    } finally {
+      count -= 1
+      if (queue.length > 0) queue.shift().resolve()
+    }
   }
 }
