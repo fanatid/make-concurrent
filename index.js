@@ -11,10 +11,10 @@ module.exports = function (fn, opts) {
   return async function (...args) {
     try {
       count += 1
-      await new Promise((resolve) => {
-        if (count <= concurrency) return resolve()
-        queue.push({ resolve })
-      })
+      if (count > concurrency) {
+        await new Promise((resolve) => queue.push({ resolve }))
+      }
+
       return await fn(...args)
     } finally {
       count -= 1
