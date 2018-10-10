@@ -1,4 +1,3 @@
-'use strict'
 module.exports = function (fn, opts) {
   const concurrency = Object.assign({ concurrency: 1 }, opts).concurrency
   if (typeof concurrency !== 'number' || isNaN(concurrency) || concurrency <= 0) {
