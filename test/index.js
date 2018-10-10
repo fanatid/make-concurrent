@@ -54,7 +54,7 @@ test('concurrency is 1 (by default)', async (t) => {
 
 test('concurrency is 2', async (t) => {
   let total = 0
-  let fn = makeConcurrent((x) => {
+  const fn = makeConcurrent((x) => {
     total += x
     return wait(100)
   }, { concurrency: 2 })
