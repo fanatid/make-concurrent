@@ -24,7 +24,6 @@ module.exports = function (fn, opts) {
     }
     try {
       cacheToUse.count += 1
-      console.log(cacheToUse)
       if (cacheToUse.count > concurrency) {
         await new Promise((resolve) => cacheToUse.queue.push({ resolve }))
       }
