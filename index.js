@@ -1,23 +1,38 @@
 module.exports = function (fn, opts) {
-  const concurrency = Object.assign({ concurrency: 1 }, opts).concurrency
+  const options = Object.assign({ concurrency: 1 }, opts)
+  const concurrency = options.concurrency
+  const byArguments = options.byArguments
   if (typeof concurrency !== 'number' || isNaN(concurrency) || concurrency <= 0) {
     throw new TypeError(`Invalid concurrency value: ${concurrency}`)
   }
 
-  let count = 0
-  const queue = []
+  const defaultCache = {
+    count: 0,
+    queue: []
+  }
+  const byArgsCache = {}
 
   return async function (...args) {
+    let cacheToUse = defaultCache
+    if (byArguments) {
+      const cacheKey = JSON.stringify(args)
+      if (byArgsCache[cacheKey]) {
+        cacheToUse = byArgsCache[cacheKey]
+      } else {
+        byArgsCache[cacheKey] = { count: 0, queue: [] }
+      }
+    }
     try {
-      count += 1
-      if (count > concurrency) {
-        await new Promise((resolve) => queue.push({ resolve }))
+      cacheToUse.count += 1
+      console.log(cacheToUse)
+      if (cacheToUse.count > concurrency) {
+        await new Promise((resolve) => cacheToUse.queue.push({ resolve }))
       }
 
       return await fn(...args)
     } finally {
-      count -= 1
-      if (queue.length > 0) queue.shift().resolve()
+      cacheToUse.count -= 1
+      if (cacheToUse.queue.length > 0) cacheToUse.queue.shift().resolve()
     }
   }
 }

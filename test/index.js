@@ -96,3 +96,23 @@ test('check error throwing', async (t) => {
 
   t.end()
 })
+
+test('concurrency is 1 and byArguments', async (t) => {
+  let total = 0
+  const fn = makeConcurrent((x) => {
+    total += x
+    return wait(100)
+  }, { byArguments: true })
+
+  fn(2)
+  fn(4)
+  fn(4)
+
+  await wait(10)
+  t.equal(total, 2 + 4)
+
+  await wait(100)
+  t.equal(total, 10)
+
+  t.end()
+})
