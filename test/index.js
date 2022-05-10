@@ -96,3 +96,24 @@ test('check error throwing', async (t) => {
 
   t.end()
 })
+
+test('.byArguments() > should call function concurrently when arguments are equal', async (t) => {
+  let total = 0
+  const fn = makeConcurrent.byArguments((x) => {
+    total += x
+    return wait(100)
+  })
+
+  fn(2)
+  fn(4)
+  fn(4)
+
+  await wait(10)
+  // fn(2) and fn(4) runs at the same time
+  t.equal(total, 6)
+
+  await wait(100)
+  // second fn(4) runs only after first fn(4) call completed
+  t.equal(total, 10)
+  t.end()
+})
