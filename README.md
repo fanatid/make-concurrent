@@ -47,11 +47,11 @@ Anywhere where you need limited access to some resource.
 
 When we call function created by `make-concurrent` counter of called functions increased by `1`, then increased counter compared with `concurrency` option, if counter is greater than `concurrency` then we create `Promise`, push `resolve` function to queue ([FIFO](https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics))) and wait while this `Promise` will be resolved, before call original function. When execution of original function will be finished we decrease counter on `1` and check queue, if queue length is not zero we take first item and call it, which resolve `Promise` and original function will be called again.
 
-All code is less than 30 lines, just [check it](index.js). This will take 2 minutes, but will give better understanding how `make-concurrent` works and how can be used effectively.
+All code is less than 50 lines, just [check it](index.js). This will take 2 minutes, but will give better understanding how `make-concurrent` works and how can be used effectively.
 
 ## Examples
 
-#### Limited acces by API key
+#### Limited access by API key
 
 Assume you need make requests to some API, but this API have limit of simultaneous requests by API key.
 
@@ -86,7 +86,7 @@ const safeUpdate = makeConcurrent(unsafeChange)
 // safeUpdate('alice')
 ```
 
-While `safeUpdate` going to be safe function for working with `state`, it's good as general approach. But here state changed for specified user, so we can optimize it:
+While `safeUpdate` going to be safe function for working with `state`, it's good as general approach. But here state changed for specified user, so we can use the `.byArguments()` method:
 
 ```js
 const makeConcurrent = require('make-concurrent')
@@ -98,12 +98,7 @@ async function unsafeUpdate (user) {
   state[user] = newValue
 }
 
-const fns = {}
-async function safeUpdate (user) {
-  if (!fns[user]) fns[user] = makeConcurrent(unsafeChange)
-  return fns[user](user)
-}
-
+const safeUpdate = makeConcurrent.byArguments(unsafeUpdate)
 // safeUpdate('alice')
 ```
 
