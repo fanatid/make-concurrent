@@ -97,7 +97,7 @@ test('check error throwing', async (t) => {
   t.end()
 })
 
-test('.byArguments() > should call function concurrently when arguments are equal', async (t) => {
+test('.byArguments() > should limit concurrency when arguments are equal', async (t) => {
   let total = 0
   const fn = makeConcurrent.byArguments((x) => {
     total += x
